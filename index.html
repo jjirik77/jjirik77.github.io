@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jirik Teaching Library</title>
+<meta name="description" content="Open, interactive course materials for cybersecurity and AI educators by Jiri Jirik: certification workshops, faculty AI development, classroom labs and program dashboards.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: light "catalog" — airy hero with profile card, collection index, left shelf nav + repo cards (after sands-mvcc.github.io/MVCC, lightened) */
+:root {
+  --bg: #F4F7FB;
+  --surface: #FFFFFF;
+  --surface-2: #EEF3F9;
+  --ink: #142238;
+  --muted: #56647C;
+  --line: #DCE4EF;
+  --accent: #1D5FD0;       /* cobalt, from the MVCC navy */
+  --accent-soft: #E3ECFB;
+  --mint: #0E9A72;         /* from the MVCC green */
+  --mint-soft: #DDF4EC;
+  --hero: #E8F0FB;
+  --c-cert: #1D5FD0;
+  --c-cyber: #0B7F8C;
+  --c-facdev: #0E9A72;
+  --c-class: #B4581A;
+  --c-prog: #6A4FB8;
+  --shadow: 0 1px 2px rgba(20,34,56,.05), 0 6px 18px -10px rgba(20,34,56,.22);
+  --shadow-up: 0 2px 4px rgba(20,34,56,.06), 0 16px 32px -14px rgba(20,34,56,.30);
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: 80px; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--body); font-size: 17px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--mint); outline-offset: 2px; border-radius: 6px; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+@media (min-width: 720px) { .wrap { padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); } }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--surface); padding: 8px 14px; border-radius: 6px; }
+.skip:focus { top: 12px; }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: saturate(150%) blur(10px); -webkit-backdrop-filter: saturate(150%) blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar .wrap { display: flex; align-items: center; gap: 16px; padding-block: 10px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-weight: 700; white-space: nowrap; }
+.mark {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px;
+  background: var(--accent); color: var(--surface); font-family: var(--display); font-weight: 800; font-size: .95rem; letter-spacing: .02em;
+}
+.brand small { display: block; font-weight: 500; color: var(--muted); font-size: .78rem; line-height: 1.1; }
+.brand b { display: block; font-family: var(--display); font-size: 1.02rem; line-height: 1.15; }
+.top-search { margin-left: auto; flex: 1; max-width: 360px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.topbar.scrolled .top-search { opacity: 1; pointer-events: auto; }
+.top-search input { width: 100%; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); font: inherit; font-size: .95rem; }
+.gh-link {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink);
+  border: 1px solid var(--line); background: var(--surface); padding: 7px 12px; border-radius: 9px; font-weight: 600; font-size: .92rem; white-space: nowrap;
+}
+.gh-link:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 720px) { .top-search { display: none; } .gh-link span { display: none; } .gh-link { margin-left: auto; } }
+
+/* ---------- Hero ---------- */
+.hero {
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--accent) 16%, transparent) 1px, transparent 1.6px) 0 0 / 22px 22px,
+    linear-gradient(180deg, var(--hero), var(--bg));
+  border-bottom: 1px solid var(--line);
+}
+.hero .wrap { padding-block: 52px 36px; display: grid; gap: 36px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 980px) { .hero .wrap { grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); align-items: start; } }
+.eyebrow { font-family: var(--mono); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 14px; }
+h1 {
+  font-family: var(--display); font-weight: 800; letter-spacing: -.025em; line-height: 1.02;
+  font-size: clamp(2.3rem, 5.2vw, 4rem); margin: 0 0 18px; text-wrap: balance;
+}
+h1 em { font-style: normal; color: var(--accent); }
+h1 em + em { color: var(--mint); }
+.lede { font-size: 1.15rem; color: var(--muted); max-width: 60ch; margin: 0 0 26px; }
+.search {
+  display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1.5px solid var(--line);
+  border-radius: 14px; padding: 6px 8px 6px 16px; box-shadow: var(--shadow); max-width: 640px;
+}
+.search:focus-within { border-color: var(--accent); }
+.search svg { color: var(--muted); flex: none; }
+.search input { flex: 1; min-width: 0; border: 0; outline: 0; font: inherit; font-size: 1.05rem; padding: 10px 0; background: transparent; color: var(--ink); }
+.search kbd { font-family: var(--mono); font-size: .8rem; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; background: var(--surface-2); }
+.stats { font-size: .92rem; color: var(--muted); margin: 10px 2px 0; min-height: 1.4em; }
+.quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.quick button {
+  font: inherit; font-size: .88rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 999px; padding: 5px 12px; cursor: pointer;
+}
+.quick button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Profile card */
+.profile { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
+.who { display: flex; gap: 16px; align-items: center; }
+.avatar {
+  position: relative; width: 76px; height: 76px; border-radius: 50%; flex: none; overflow: hidden;
+  background: var(--accent-soft); color: var(--accent); display: grid; place-items: center;
+  font-family: var(--display); font-weight: 800; font-size: 1.6rem; border: 3px solid var(--surface); box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.who h2 { font-family: var(--display); font-size: 1.35rem; margin: 0; line-height: 1.15; }
+.who p { margin: 2px 0 0; color: var(--muted); font-size: .95rem; line-height: 1.35; }
+.certs { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; }
+.certs li { font-family: var(--mono); font-size: .76rem; padding: 3px 9px; border-radius: 6px; background: var(--mint-soft); color: #08694D; }
+.roles { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: .95rem; }
+.roles li { display: flex; gap: 10px; align-items: baseline; }
+.roles li::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; transform: translateY(-1px); }
+.totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 18px 0 0; padding: 16px 0 0; border-top: 1px solid var(--line); list-style: none; }
+.totals li { display: flex; flex-direction: column; }
+.totals b { font-family: var(--display); font-size: 1.8rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.totals span { font-size: .8rem; color: var(--muted); margin-top: 4px; line-height: 1.25; }
+.profile .bio-link { display: inline-block; margin-top: 14px; font-weight: 600; font-size: .95rem; text-decoration: none; }
+.profile .bio-link:hover { text-decoration: underline; }
+
+/* Collection index */
+.index { margin-top: 6px; }
+.index h2, .section-h { font-family: var(--mono); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+.index-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.index-grid a {
+  display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; font-weight: 600; font-size: .96rem;
+  transition: border-color .15s, transform .15s;
+}
+.index-grid a:hover { border-color: var(--c); transform: translateY(-1px); }
+.index-grid .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--c); flex: none; }
+.index-grid .count { margin-left: auto; font-family: var(--mono); font-size: .78rem; color: var(--muted); font-weight: 400; }
+
+/* ---------- Featured workshops ---------- */
+.featured { padding-block: 44px 8px; }
+.feat-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 24px; margin-bottom: 18px; }
+.feat-head h2 { font-family: var(--display); font-size: clamp(1.6rem, 3vw, 2.1rem); letter-spacing: -.015em; margin: 0; }
+.feat-head p { margin: 0; color: var(--muted); max-width: 52ch; }
+.feat-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.feat {
+  position: relative; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: var(--shadow);
+  transition: transform .18s, box-shadow .18s, border-color .18s; overflow: hidden;
+}
+.feat:hover { transform: translateY(-3px); box-shadow: var(--shadow-up); border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.feat .code { font-family: var(--display); font-weight: 800; font-size: 2.1rem; line-height: 1; letter-spacing: -.02em; color: var(--accent); }
+.feat .exam { font-family: var(--mono); font-size: .74rem; color: var(--muted); }
+.feat h3 { font-size: 1.05rem; margin: 0; line-height: 1.3; }
+.feat p { margin: 0; font-size: .93rem; color: var(--muted); flex: 1; }
+.feat .meta { display: flex; justify-content: space-between; font-family: var(--mono); font-size: .74rem; color: var(--muted); padding-top: 10px; border-top: 1px dashed var(--line); }
+.feat .days { position: absolute; top: 18px; right: 18px; font-family: var(--mono); font-size: .72rem; background: var(--accent-soft); color: var(--accent); border-radius: 6px; padding: 3px 8px; }
+
+/* ---------- Shelves ---------- */
+.layout { display: grid; gap: 32px; grid-template-columns: minmax(0, 1fr); padding-block: 36px 64px; }
+@media (min-width: 1040px) { .layout { grid-template-columns: 230px minmax(0, 1fr); } }
+.shelf-nav { display: none; }
+@media (min-width: 1040px) {
+  .shelf-nav { display: block; position: sticky; top: calc(76px + env(safe-area-inset-top, 0px)); align-self: start; }
+}
+.shelf-nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.shelf-nav a {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px;
+  text-decoration: none; color: var(--ink); font-size: .95rem; font-weight: 500;
+}
+.shelf-nav a:hover { background: var(--surface); }
+.shelf-nav a.active { background: var(--surface); box-shadow: var(--shadow); font-weight: 700; }
+.shelf-nav .dot { width: 9px; height: 9px; border-radius: 3px; background: var(--c); flex: none; }
+.shelf-nav .count { margin-left: auto; font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+
+.shelf { margin-bottom: 44px; }
+.shelf[hidden] { display: none; }
+.shelf-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.shelf-head .swatch { width: 14px; height: 14px; border-radius: 4px; background: var(--c); flex: none; }
+.shelf-head h2 { font-family: var(--display); font-size: 1.55rem; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.shelf > p { color: var(--muted); margin: 0 0 16px 26px; max-width: 70ch; }
+.cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+@media (max-width: 420px) { .cards { grid-template-columns: minmax(0, 1fr); } .shelf > p { margin-left: 0; } }
+
+.card {
+  display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 18px 18px 14px; min-width: 0; transition: border-color .15s, box-shadow .15s;
+}
+.card:hover { border-color: color-mix(in srgb, var(--c) 45%, var(--line)); box-shadow: var(--shadow); }
+.card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.tag { font-family: var(--mono); font-size: .72rem; padding: 2px 8px; border-radius: 6px; color: var(--c); background: color-mix(in srgb, var(--c) 11%, var(--surface)); }
+.new { font-family: var(--mono); font-size: .72rem; padding: 2px 8px; border-radius: 6px; background: var(--mint-soft); color: #08694D; }
+.card h3 { margin: 0 0 6px; font-size: 1.1rem; line-height: 1.3; }
+.card h3 a { color: var(--ink); text-decoration: none; }
+.card h3 a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.card .desc { margin: 0 0 12px; color: var(--muted); font-size: .95rem; flex: 1; }
+.card .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-family: var(--mono); font-size: .74rem; color: var(--muted); padding-top: 10px; border-top: 1px solid var(--line); }
+.card .foot a { color: var(--muted); }
+.card .foot a:hover { color: var(--accent); }
+.card .foot .path { margin-right: auto; overflow-wrap: anywhere; }
+details.pages { margin-top: 10px; }
+details.pages summary { cursor: pointer; font-size: .9rem; font-weight: 600; color: var(--accent); list-style: none; display: inline-flex; align-items: center; gap: 6px; }
+details.pages summary::-webkit-details-marker { display: none; }
+details.pages summary::before { content: "+"; font-family: var(--mono); width: 18px; height: 18px; display: inline-grid; place-items: center; border-radius: 5px; background: var(--accent-soft); font-size: .85rem; }
+details.pages[open] summary::before { content: "−"; }
+details.pages ul { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+details.pages li a { display: block; padding: 5px 8px; border-radius: 7px; text-decoration: none; color: var(--ink); font-size: .92rem; }
+details.pages li a:hover { background: var(--surface-2); color: var(--accent); }
+mark { background: #FFE9A8; color: inherit; border-radius: 3px; padding: 0 1px; }
+
+.empty { display: none; text-align: center; padding: 40px 16px; color: var(--muted); background: var(--surface); border: 1px dashed var(--line); border-radius: 14px; }
+.empty.show { display: block; }
+
+/* ---------- Footer ---------- */
+footer { border-top: 1px solid var(--line); background: var(--surface); }
+footer .wrap { padding-block: 28px; display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; font-size: .92rem; color: var(--muted); }
+footer p { margin: 0; max-width: 62ch; }
+footer strong { color: var(--ink); }
+.to-top {
+  position: fixed; right: calc(18px + env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; text-decoration: none;
+  background: var(--surface); color: var(--accent); border: 1px solid var(--line); box-shadow: var(--shadow-up);
+  opacity: 0; pointer-events: none; transition: opacity .2s; font-size: 1.2rem;
+}
+.to-top.show { opacity: 1; pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } html { scroll-behavior: auto; } }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#library">Skip to the library</a>
+
+<div class="topbar" id="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="mark" aria-hidden="true">JJ</span><span><b>Jiri Jirik</b><small>Teaching Library</small></span></a>
+    <div class="top-search">
+      <label class="vh" for="q2">Search the library</label>
+      <input id="q2" type="search" placeholder="Search the library" autocomplete="off">
+    </div>
+    <a class="gh-link" href="https://github.com/jjirik77?tab=repositories" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      <span>View on GitHub</span>
+    </a>
+  </div>
+</div>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Cybersecurity &amp; AI education · open materials</p>
+      <h1>Interactive courses for teaching <em>cybersecurity</em> and <em>AI</em></h1>
+      <p class="lede">Certification workshops, faculty development studios, classroom labs and program dashboards. Every resource is a free, browser-based site you can open, teach from, or adapt for your own students.</p>
+      <div class="search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <label class="vh" for="q">Search the library</label>
+        <input id="q" type="search" placeholder="Try “CISSP”, “Linux permissions” or “prompting”" autocomplete="off">
+        <kbd aria-hidden="true">/</kbd>
+      </div>
+      <p class="stats" id="stats" aria-live="polite"></p>
+      <div class="quick" aria-label="Popular searches">
+        <button type="button" data-q="workshop">5-day workshops</button>
+        <button type="button" data-q="Linux">Linux+ labs</button>
+        <button type="button" data-q="AI-resistant">AI-resistant assessment</button>
+        <button type="button" data-q="ethics">AI ethics</button>
+        <button type="button" data-q="dashboard">Dashboards</button>
+      </div>
+    </div>
+
+    <aside class="profile" aria-label="About the author">
+      <div class="who">
+        <div class="avatar" aria-hidden="true">JJ<img src="https://jjirik77.github.io/AI_Resources/Jirik_Headshot.jpg" alt="" onerror="this.remove()"></div>
+        <div>
+          <h2>Jiri Jirik</h2>
+          <p>Director, Education Pathway National Center (EPNC) · Moraine Valley Community College</p>
+        </div>
+      </div>
+      <ul class="certs" aria-label="Certifications">
+        <li>CISSP</li><li>CISA</li><li>CASP+</li>
+      </ul>
+      <ul class="roles">
+        <li>Co-PI, AI innovation grants</li>
+        <li>Board member, National Cyber League</li>
+        <li>Co-developer, RING high school curriculum</li>
+      </ul>
+      <ul class="totals" id="totals" aria-label="Library totals"></ul>
+      <a class="bio-link" href="https://jjirik77.github.io/AI_Resources/bio.html" target="_blank" rel="noopener">Read the full bio →</a>
+    </aside>
+
+    <nav class="index" aria-labelledby="index-h" style="grid-column: 1 / -1;">
+      <h2 id="index-h">Browse by collection</h2>
+      <div class="index-grid" id="indexGrid"></div>
+    </nav>
+  </div>
+</header>
+
+<section class="featured wrap" aria-labelledby="feat-h" id="featured">
+  <div class="feat-head">
+    <h2 id="feat-h">Five-day certification workshops</h2>
+    <p>Day-by-day lessons, activities, labs and faculty tools built around current exam outlines.</p>
+  </div>
+  <div class="feat-grid" id="featGrid"></div>
+</section>
+
+<div class="layout wrap" id="library">
+  <nav class="shelf-nav" aria-label="Collections">
+    <h2 class="section-h">Collections</h2>
+    <ul id="nav"></ul>
+  </nav>
+  <main id="main">
+    <div class="empty" id="empty">No resources match that search. Try a shorter word, such as “audit” or “agent”.</div>
+  </main>
+</div>
+
+<a class="to-top" id="toTop" href="#top" aria-label="Back to top">↑</a>
+
+<footer>
+  <div class="wrap">
+    <p><strong>© 2025–2026 Jiri Jirik</strong><br>Created for educators with the Education Pathway National Center (EPNC), the National Cybersecurity Training &amp; Education Center (NCyTE) and Moraine Valley Community College.</p>
+    <p>Source: <a href="https://github.com/jjirik77?tab=repositories" target="_blank" rel="noopener">github.com/jjirik77</a><br>Related: <a href="https://sands-mvcc.github.io/MVCC/" target="_blank" rel="noopener">NCyTE AI-Generated Content Repository</a></p>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   LIBRARY DATA
+   One entry per GitHub repository.
+   r: repo name (site lives at BASE + r + "/")
+   t: title   d: description   n: number of pages   u: last updated (YYYY-MM)
+   h: entry page inside the repo ('' = index.html)
+   p: optional list of [file, title] pages to show under "Pages"
+   x: 1 = flag as new
+   ========================================================= */
+const BASE = 'https://jjirik77.github.io/';
+
+const WORKSHOPS = [
+  { r: 'cissp',   code: 'CISSP',  exam: 'ISC2 · 2027 outline', t: 'Think Like a Security Leader', d: 'Security leadership across all eight CISSP domains for faculty who teach or sit the exam.' },
+  { r: 'cisa',    code: 'CISA',   exam: 'ISACA · 5 domains',   t: 'Master the CISA in Five Days', d: 'Domain-by-domain IT audit workshop with embedded practice widgets and labs.' },
+  { r: 'cism',    code: 'CISM',   exam: 'ISACA · 4 domains',   t: 'Lead with the CISM', d: 'Management-focused boot camp with CISM practices and a leadership lab.' },
+  { r: 'pentest', code: 'PenTest+', exam: 'CompTIA · PT0-003', t: 'Teach Ethical Hacking', d: 'The full penetration-testing lifecycle: scope, recon, exploit and report, plus a simulation range.' },
+  { r: 'cmmc',    code: 'CMMC',   exam: 'CCP / CCA · Level 2', t: 'Assess a Real Company', d: 'Ten sessions and fourteen domains on one defense contractor, scoped to close-out.' },
+];
+
+const COLLECTIONS = [
+  { id: 'cert', name: 'Certification workshops', blurb: 'Complete five-day faculty workshops mapped to industry certification exams.', items: [
+    { r: 'cissp',   t: 'CISSP 5-Day Faculty Workshop', d: 'Security leadership across eight domains, aligned to the 2027 CISSP outline.', n: 30, u: '2026-11', x: 1 },
+    { r: 'pentest', t: 'PenTest+ 5-Day Faculty Workshop', d: 'Ethical hacking and penetration testing (PT0-003) with practices, a simulation range and build-your-range guides.', n: 37, u: '2026-11', x: 1 },
+    { r: 'cism',    t: 'CISM 5-Day Boot Camp', d: 'Certified Information Security Manager prep with governance, risk, program and incident practices.', n: 36, u: '2026-11', x: 1 },
+    { r: 'cisa',    t: 'CISA 5-Day Workshop', d: 'Certified Information Systems Auditor prep with audit activities and hands-on labs.', n: 41, u: '2026-11', x: 1 },
+    { r: 'cmmc',    t: 'CMMC Level 2 Assessor Preparation', d: 'Ten-session CCP/CCA workshop that carries one case study from scoping through the final report.', n: 32, u: '2026-09' },
+  ]},
+  { id: 'cyber', name: 'Cybersecurity labs & lessons', blurb: 'Hands-on labs, career exploration tools and competition resources for students.', items: [
+    { r: 'linux', t: 'CompTIA Linux+ Interactive Labs', d: 'Chapter-by-chapter labs covering editors, users, files, permissions, storage, processes, scripting, networking and troubleshooting.', n: 13, u: '2026-11', h: 'chapter_2.html', x: 1, p: [
+      ['chapter_2.html','Ch. 2 · Text editors'],['chapter_4.html','Ch. 4 · Users and groups'],['chapter_5.html','Ch. 5 · Files and directories'],
+      ['chapter_6.html','Ch. 6 · Permissions masterclass'],['chapter_7_8.html','Ch. 7–8 · Storage architect'],['chapter_9.html','Ch. 9 · Processes'],
+      ['chapter_10.html','Ch. 10 · Applications'],['chapter_11.html','Ch. 11 · Boot process'],['chapter_12.html','Ch. 12 · Hardware'],
+      ['chapter_13.html','Ch. 13 · Shell scripts'],['chapter_14.html','Ch. 14 · Network settings'],['chapter_18.html','Ch. 18 · Virtualization and cloud'],
+      ['chapter_19.html','Ch. 19 · Troubleshooting and diagnostics']]},
+    { r: 'sec_code', t: 'Secure Coding', d: 'Interactive lessons on applying cybersecurity principles to programming, app security and privacy.', n: 2, u: '2025-11', h: 'interactive.html', p: [
+      ['interactive.html','Implementing security principles in code'],['privacy.html','App security and privacy']]},
+    { r: 'ccaei', t: 'Cybersecurity Career Awareness Toolkit', d: 'Career exploration toolkits for students and advisors, with baseline and high-stakes career assessments.', n: 6, u: '2026-03', h: 'toolkit.html', p: [
+      ['toolkit.html','CCAEI toolkit'],['toolkit_1.html','Career awareness exploration'],['toolkit_student.html','Student cybersecurity explorer'],
+      ['toolkit_advisors.html','Explorer for advisors'],['assess_1.html','Career assessment: baseline'],['assessment.html','Career assessment: high stakes']]},
+    { r: 'education', t: 'Cybersecurity Case Study Builder', d: 'Build realistic, classroom-ready cybersecurity case studies step by step.', n: 1, u: '2026-05', h: 'case_build.html' },
+    { r: 'ncl', t: 'National Cyber League Roadmap', d: 'Strategic roadmap for the National Cyber League, 2026–2029.', n: 1, u: '2026-01', h: 'ncl.html' },
+  ]},
+  { id: 'facdev', name: 'AI faculty development', blurb: 'Professional development studios and workshops that help educators in every discipline teach with AI.', items: [
+    { r: 'ai-ed', t: 'Faculty AI Integration Studio', d: 'Eight-week, research-based studio. Each participant redesigns one real course and leaves with a pilot-ready AI integration portfolio.', n: 14, u: '2026-10', x: 1 },
+    { r: 'ai_ncyte', t: 'AI Fundamentals for Educators', d: 'Five-day intensive with NCyTE and EPNC on using AI in teaching and learning, with generators for activities, case studies and graphics.', n: 47, u: '2026-09' },
+    { r: 'agent_ai', t: 'Mastering AI Automation', d: 'Bots, agents and agentic browsers: a professional development course with lessons and activities.', n: 50, u: '2026-07' },
+    { r: 'ai_resistant', t: 'AI-Resilient Assignments Workshop', d: 'Design assessments that hold up to AI, with discipline-specific master trainers, the AIAS framework and policy tools.', n: 22, u: '2026-06', h: 'cyad.html', p: [
+      ['cyad.html','Workshop launchpad'],['landscape.html','The AI assessment landscape'],['pedagogy.html','The pedagogical convergence'],['pedagogy2.html','Pedagogical foundations'],
+      ['aias.html','AIAS framework'],['strategies.html','Assignment strategies'],['process_product.html','Process over product'],['reasoning.html','Critical perspectives'],
+      ['detection.html','Master class: AI-resistant assignments'],['policy.html','AI policy and academic integrity tool'],['implement.html','Implementation action planner'],
+      ['arts.html','Fine arts'],['business.html','Business'],['cte.html','CTE'],['health.html','Healthcare'],['humanities.html','Humanities'],
+      ['math.html','Mathematics'],['physics.html','Physical science'],['social.html','Social science'],['stem.html','STEM'],
+      ['pre_survey.html','Pre-workshop survey'],['post_survey.html','Post-workshop evaluation']]},
+    { r: 'AI_Resources', t: 'AI Educational Library', d: 'Curated guides to ChatGPT, Claude, Copilot, Gemini, Perplexity and more, with a comparative analysis and AI ethics.', n: 21, u: '2026-07' },
+    { r: 'scc', t: 'AI Assistants & Knowledge Systems', d: 'Mini-course lesson on what AI assistants are, with a guided reflection activity.', n: 2, u: '2026-07', h: 'assistant.html', p: [
+      ['assistant.html','What are AI assistants and knowledge systems?'],['assist_reflect.html','Reflection: where do you already see AI assistants?']]},
+    { r: 'AI_Math', t: 'The AI Co-Pilot', d: 'Keynote resources on AI as a co-pilot for mathematics teaching.', n: 1, u: '2025-10', h: 'ai_math.html' },
+  ]},
+  { id: 'class', name: 'AI classroom interactives', blurb: 'Student-facing simulations and study tools that teach how AI works and how to use it responsibly.', items: [
+    { r: 'ring_ai', t: 'RING AI Curriculum Interactives', d: 'High school AI labs: be the algorithm, classify wildlife, test similarity, judge a Turing test and run an ethics autopsy.', n: 15, u: '2026-07', h: 'algorithm.html', p: [
+      ['algorithm.html','You are the algorithm'],['ai_technology.html','AI technology classification lab'],['ai_tech.html','AI engine spotter'],['ml.html','Wildlife classification mission'],
+      ['probability.html','Prediction lab'],['similarity.html','Cosine similarity quick judge'],['vectors.html','VectorVerse: the shape of data'],['lifecycle.html','AI lifecycle challenge'],
+      ['turing.html','Turing test examiner'],['trolley.html','Autonoma X1 ethics simulation'],['autopsy.html','Ethical autopsy lab'],['copyright.html','Digital rights consultant'],
+      ['soc.html','SOCBox incident response simulator'],['terms_unit1.html','AI vocabulary studio'],['terms_unit2.html','Ethics vocabulary studio']]},
+    { r: 'azure', t: 'AI Concepts Study Tools', d: 'Interactive guides to computer vision, OCR, image processing, AI ethics and C2PA digital provenance.', n: 7, u: '2025-08', h: 'levels.html', p: [
+      ['levels.html','The universe of AI'],['ai_concepts.html','A guide to AI concepts'],['cnn.html','ML for computer vision'],['image.html','Image processing explorer'],
+      ['ocr.html','OCR study tool'],['ethics.html','AI ethics learning tool'],['provenance.html','Digital provenance and C2PA']]},
+    { r: 'class', t: 'Classroom AI Lessons', d: 'Tokens and context limits, the state of AI in 2026, plus discipline demos in HVAC, economics and grammar.', n: 8, u: '2026-02', h: 'tokens.html', p: [
+      ['tokens.html','AI tokenization'],['token_limit.html','Mastering AI tokens'],['state.html','State of AI in 2026'],['rationale.html','AI Horizon 2026 faculty PD'],
+      ['diagrams.html','Logical vs. physical architecture'],['ac.html','HVAC master academy'],['m1.html','Velocity of money'],['nouns.html','Noun navigator']]},
+  ]},
+  { id: 'prog', name: 'Programs, dashboards & reports', blurb: 'Program hubs, impact dashboards and research instruments for EPNC and partner initiatives.', items: [
+    { r: 'EPNC', t: 'The AI-Ready Educator', d: 'EPNC hub of interactive guides, classroom-ready tools and faculty-built repositories.', n: 5, u: '2026-08' },
+    { r: 'reports', t: 'Impact Dashboards & Instruments', d: 'Interactive dashboards for EPNC, RAMPS and AI-for-educators workshops, plus the NICE applicability workbench.', n: 8, u: '2026-09', h: 'epnc.html', p: [
+      ['epnc.html','EPNC impact dashboard'],['index1.html','AI for Educators initiative dashboard'],['ai_illinois.html','AI for Educators workshop series'],
+      ['ai_report.html','AI for Educators workshop dashboard'],['ramps.html','Cyber Illinois: RAMPS dashboard'],['ed_innovation.html','Cybersecurity education innovation'],
+      ['nice_applicability.html','NICE applicability workbench'],['pre_survey.html','AI in academia pre-workshop survey']]},
+  ]},
+];
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmt = u => { const [y, m] = u.split('-'); return MONTHS[+m - 1] + ' ' + y; };
+const url = (it, file) => BASE + it.r + '/' + (file ?? it.h ?? '');
+const color = id => `var(--c-${id})`;
+
+/* ---------- totals ---------- */
+const allItems = COLLECTIONS.flatMap(c => c.items);
+const totalPages = allItems.reduce((s, i) => s + i.n, 0);
+$('#totals').innerHTML = [
+  [allItems.length, 'course sites'],
+  [Math.floor(totalPages / 10) * 10 + '+', 'interactive pages'],
+  [WORKSHOPS.length, 'certification workshops'],
+].map(([b, s]) => `<li><b>${b}</b><span>${s}</span></li>`).join('');
+
+/* ---------- featured ---------- */
+$('#featGrid').innerHTML = WORKSHOPS.map(w => {
+  const it = allItems.find(i => i.r === w.r);
+  return `<a class="feat" href="${url(it)}" target="_blank" rel="noopener">
+    <span class="days">5 days</span>
+    <span class="code">${esc(w.code)}</span>
+    <span class="exam">${esc(w.exam)}</span>
+    <h3>${esc(w.t)}</h3>
+    <p>${esc(w.d)}</p>
+    <span class="meta"><span>${it.n} pages</span><span>${fmt(it.u)}</span></span>
+  </a>`;
+}).join('');
+
+/* ---------- index + nav ---------- */
+$('#indexGrid').innerHTML = COLLECTIONS.map(c =>
+  `<a href="#${c.id}" style="--c:${color(c.id)}"><span class="dot"></span><span>${esc(c.name)}</span><span class="count">${c.items.length}</span></a>`).join('');
+$('#nav').innerHTML = COLLECTIONS.map(c =>
+  `<li><a href="#${c.id}" data-id="${c.id}" style="--c:${color(c.id)}"><span class="dot"></span><span>${esc(c.name)}</span><span class="count" data-count="${c.id}">${c.items.length}</span></a></li>`).join('');
+
+/* ---------- shelves ---------- */
+const main = $('#main');
+COLLECTIONS.forEach(c => {
+  const sec = document.createElement('section');
+  sec.className = 'shelf'; sec.id = c.id; sec.style.setProperty('--c', color(c.id));
+  sec.setAttribute('aria-labelledby', c.id + '-h');
+  sec.innerHTML = `<div class="shelf-head"><span class="swatch" aria-hidden="true"></span><h2 id="${c.id}-h">${esc(c.name)}</h2></div>
+    <p>${esc(c.blurb)}</p><div class="cards"></div>`;
+  const grid = sec.querySelector('.cards');
+  c.items.forEach(it => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card._search = [it.t, it.d, it.r, c.name, ...(it.p || []).map(p => p[1])].join(' ').toLowerCase();
+    card._it = it;
+    card.innerHTML = `
+      <div class="card-top"><span class="tag">${esc(it.r)}</span>${it.x ? '<span class="new">New</span>' : ''}</div>
+      <h3><a href="${url(it)}" target="_blank" rel="noopener" data-f="t">${esc(it.t)}</a></h3>
+      <p class="desc" data-f="d">${esc(it.d)}</p>
+      <div class="foot">
+        <span class="path">${it.n} page${it.n > 1 ? 's' : ''} · ${fmt(it.u)}</span>
+        <a href="https://github.com/jjirik77/${esc(it.r)}" target="_blank" rel="noopener">Source</a>
+      </div>
+      ${it.p && it.p.length > 1 ? `<details class="pages"><summary>${it.p.length} pages</summary><ul>${
+        it.p.map(([f, t]) => `<li><a href="${url(it, f)}" target="_blank" rel="noopener" data-f="p">${esc(t)}</a></li>`).join('')
+      }</ul></details>` : ''}`;
+    grid.appendChild(card);
+  });
+  main.insertBefore(sec, $('#empty'));
+});
+
+/* ---------- search ---------- */
+const q = $('#q'), q2 = $('#q2'), stats = $('#stats');
+const cards = [...document.querySelectorAll('.card')];
+function highlight(el, raw, term) {
+  if (!term) { el.textContent = raw; return; }
+  const i = raw.toLowerCase().indexOf(term);
+  el.innerHTML = i < 0 ? esc(raw) : esc(raw.slice(0, i)) + '<mark>' + esc(raw.slice(i, i + term.length)) + '</mark>' + esc(raw.slice(i + term.length));
+}
+function run(v) {
+  const term = v.trim().toLowerCase();
+  let shown = 0;
+  cards.forEach(card => {
+    const hit = !term || term.split(/\s+/).every(w => card._search.includes(w));
+    card.hidden = !hit;
+    if (hit) shown++;
+    const it = card._it;
+    highlight(card.querySelector('[data-f="t"]'), it.t, term);
+    highlight(card.querySelector('[data-f="d"]'), it.d, term);
+    const det = card.querySelector('details');
+    if (det) {
+      let pageHit = false;
+      det.querySelectorAll('[data-f="p"]').forEach((a, i) => {
+        highlight(a, it.p[i][1], term);
+        if (term && it.p[i][1].toLowerCase().includes(term)) pageHit = true;
+      });
+      det.open = pageHit;
+    }
+  });
+  document.querySelectorAll('.shelf').forEach(s => {
+    const n = s.querySelectorAll('.card:not([hidden])').length;
+    s.hidden = n === 0;
+    const cnt = document.querySelector(`[data-count="${s.id}"]`);
+    if (cnt) cnt.textContent = n;
+  });
+  $('#empty').classList.toggle('show', shown === 0);
+  stats.textContent = term
+    ? `${shown} of ${cards.length} course sites match “${v.trim()}”`
+    : `${cards.length} course sites · ${totalPages} interactive pages · all free to use`;
+}
+function sync(src, other) { other.value = src.value; run(src.value); }
+q.addEventListener('input', () => sync(q, q2));
+q2.addEventListener('input', () => sync(q2, q));
+document.querySelectorAll('.quick button').forEach(b => b.addEventListener('click', () => {
+  q.value = b.dataset.q; sync(q, q2);
+  document.getElementById('library').scrollIntoView();
+}));
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/input|textarea/i.test(document.activeElement.tagName)) {
+    e.preventDefault();
+    (document.getElementById('topbar').classList.contains('scrolled') ? q2 : q).focus();
+  }
+  if (e.key === 'Escape' && (document.activeElement === q || document.activeElement === q2)) { q.value = ''; sync(q, q2); }
+});
+run('');
+
+/* ---------- scroll state ---------- */
+const topbar = $('#topbar'), toTop = $('#toTop');
+const navLinks = [...document.querySelectorAll('.shelf-nav a')];
+function onScroll() {
+  const y = window.scrollY;
+  const heroEnd = document.getElementById('top').offsetHeight - 60;
+  topbar.classList.toggle('scrolled', y > heroEnd);
+  toTop.classList.toggle('show', y > 600);
+  let current = '';
+  document.querySelectorAll('.shelf:not([hidden])').forEach(s => { if (s.getBoundingClientRect().top < 140) current = s.id; });
+  navLinks.forEach(a => a.classList.toggle('active', a.dataset.id === current));
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+</script>
+</body>
+</html>
